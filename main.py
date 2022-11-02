@@ -10,7 +10,9 @@ longpoll = VkLongPoll(vk_session)
 
 cmds = {
     "помощь": handler.help,
-    "бабло": handler.payment_amount
+    "бабло": handler.payment_amount,
+    "чек": handler.notification,
+    "внес": handler.deposit
 }
 
 for event in longpoll.listen():

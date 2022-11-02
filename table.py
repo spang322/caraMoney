@@ -21,4 +21,8 @@ class Sheet:
         else:
             return -1
 
+    def boets_list(self):
+        last_name_list = [i[0] for i in self.wks.get('A1:A5')]
+        return last_name_list
+
 Sheet = Sheet()

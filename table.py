@@ -1,5 +1,6 @@
 import gspread
 
+
 class Sheet:
     def __init__(self):
         self.sa = gspread.service_account()
@@ -22,7 +23,21 @@ class Sheet:
             return -1
 
     def boets_list(self):
-        last_name_list = [i[0] for i in self.wks.get('A1:A5')]
-        return last_name_list
+        i = 1
+        boets_list = []
+
+        while True:
+            boets = self.wks.acell(f'A{i}').value
+            print(boets)
+            if boets is None:
+                break
+            boets_list.append(boets)
+            i += 1
+
+        return boets_list
+
+    def cell_int_value(self, cell_id):
+        return int(self.wks.acell(cell_id).value)
+
 
 Sheet = Sheet()

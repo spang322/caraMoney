@@ -12,7 +12,9 @@ cmds = {
     "помощь": handler.help_user,
     "бабло": handler.payment_amount,
     "чек": handler.notification,
-    "внес": handler.deposit
+    "внес": handler.deposit,
+    "пришло": handler.deposit_approve,
+    "не": handler.deposit_decline
 }
 
 for event in longpoll.listen():
@@ -23,12 +25,12 @@ for event in longpoll.listen():
             # Checking if user is registered in our system
             handler.is_registered(user_id, last_name)
 
-            msg = event.text.lower()
+            msg = event.text
 
-            if msg not in cmds:
+            if msg.split()[0].lower() not in cmds:
                 handler.wrong_cmd(vk_session, user_id)
             else:
                 for name, func in cmds.items():
-                    if msg.lower() == name:
-                        func(vk_session, user_id, last_name)
+                    if msg.split()[0].lower() == name:
+                        func(vk_session, user_id, last_name, msg)
                         break

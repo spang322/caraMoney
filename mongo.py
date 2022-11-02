@@ -8,7 +8,7 @@ class Database:
         self.collection = self.db["Money"]
 
     def add_new(self, usr):
-        self.collection.insert_one()
+        self.collection.insert_one(usr)
 
     def find(self, last_name):
         return self.collection.find_one({'last_name': last_name})

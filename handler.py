@@ -1,12 +1,16 @@
 from mongo import Mongo
 
-def is_registered(last_name):
+def is_registered(id, last_name):
     res = Mongo.find(last_name)
-    print(res)
     if res is None:
+        register(id, last_name)
         return True
     else:
-        return False
+        return True
+
+def register(id, last_name):
+    usr = {'_id': id, 'last_name': last_name}
+    Mongo.add_new(usr)
 
 def wrong_cmd(vk_session, id):
     vk_session.method('messages.send', {"user_id": id, "message": "Я таких слов не знаю :(", "random_id": 0})

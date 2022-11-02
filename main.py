@@ -14,7 +14,8 @@ cmds = {
     "чек": handler.notification,
     "внес": handler.deposit,
     "пришло": handler.deposit_approve,
-    "не": handler.deposit_decline
+    "не": handler.deposit_decline,
+    "комендант": handler.call_cumendant
 }
 
 for event in longpoll.listen():

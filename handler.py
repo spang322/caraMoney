@@ -22,12 +22,15 @@ def wrong_cmd(vk_session, user_id):
 
 
 def help_user(vk_session, user_id, last_name, user_msg):
-    cmds = """Список команд:
+    msg = """Список команд:
     \n"Помощь" - список команд
     \n"Бабло" - информация о внесенных средствах
-    \n"Внес (сумма)" - уведомить коменданта, о том что ты внес деньги в кассу"""
-    adm_cmds = """"Чек" - напоминание полупокерам о том, что нужно внести бабло"""
-    msg = cmds + adm_cmds
+    \n"Внес (сумма)" - уведомить коменданта, о том что ты внес деньги в кассу
+    \n"Комендант" - призывает коменданта (опасно)"""
+
+    if user_id == Sheet.cell_int_value('G1'):
+        msg += """"Чек" - напоминание полупокерам о том, что нужно внести бабло"""
+
     vk_session.method('messages.send', {"user_id": user_id, "message": msg, "random_id": 0})
 
 
@@ -42,6 +45,12 @@ def payment_amount(vk_session, user_id, last_name, user_msg):
 
 def notification(vk_session, user_id, last_name, user_msg):
     admin_id = Sheet.cell_int_value('G1')
+
+    if admin_id != user_id:
+        msg = 'Ты как ваще эту команду узнал? Чеши отсюда, мамкин хакер...'
+        vk_session.method('messages.send', {"user_id": user_id, "message": msg, "random_id": 0})
+        return 0
+
     for boets in Sheet.boets_list():
         if Mongo.find(boets) is None:
             msg = f'{boets}  - гомосексуалист, т.к. еще не зарегистрировался в боте'
@@ -105,7 +114,7 @@ def deposit_decline(vk_session, user_id, last_name, user_msg):
         vk_session.method('messages.send', {"user_id": admin_id, "message": msg, "random_id": 0})
         return 0
 
-    deposit_user_id = Mongo.find(user_msg.split()[2])
+    deposit_user_id = Mongo.find(user_msg.split()[2].capitalize())
 
     if deposit_user_id is None:
         msg = 'Не гони на чела, он ведь даже не в отряде'
@@ -117,3 +126,12 @@ def deposit_decline(vk_session, user_id, last_name, user_msg):
 
         msg = 'Слышь, где деньги Лебовски? За такое можно и в глаз!'
         vk_session.method('messages.send', {"user_id": deposit_user_id['_id'], "message": msg, "random_id": 0})
+
+def call_cumendant(vk_session, user_id, last_name, user_msg):
+    admin_id = Sheet.cell_int_value(cell_id='G1')
+
+    msg = f'Товарищ комендант, вас призывает {last_name}'
+    vk_session.method('messages.send', {"user_id": admin_id, "message": msg, "random_id": 0})
+
+    msg = 'Оно приближается...'
+    vk_session.method('messages.send', {"user_id": user_id, "message": msg, "random_id": 0})

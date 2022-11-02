@@ -9,22 +9,24 @@ session_api = vk_session.get_api()
 longpoll = VkLongPoll(vk_session)
 
 cmds = {
-    "помощь": handler.help
+    "помощь": handler.help,
+    "бабло": handler.payment_amount
 }
 
 for event in longpoll.listen():
     if event.type == VkEventType.MESSAGE_NEW:
         if event.to_me:
             id = event.user_id
+            last_name = session_api.users.get(user_ids=(id))[0]['last_name']
             # Checking if user is registered in our system
-            handler.is_registered(id, session_api.users.get(user_ids=(id))[0]['last_name'])
+            handler.is_registered(id, last_name)
 
             msg = event.text.lower()
 
             if msg not in cmds:
                 handler.wrong_cmd(vk_session, id)
-
-            for name, func in cmds.items():
-                if msg.lower() == name:
-                    func(vk_session, id)
-                    break
+            else:
+                for name, func in cmds.items():
+                    if msg.lower() == name:
+                        func(vk_session, id, last_name)
+                        break

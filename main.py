@@ -15,12 +15,15 @@ cmds = {
 for event in longpoll.listen():
     if event.type == VkEventType.MESSAGE_NEW:
         if event.to_me:
-            msg = event.text.lower()
             id = event.user_id
-            print(session_api.users.get(user_ids=(id))[0])
-            if msg not in cmds:
-                handler.wrong_cmd(vk_session, id)
-            for name, func in cmds.items():
-                if msg.lower() == name:
-                    func(vk_session, id)
-                    break
+            if handler.is_registered(session_api.users.get(user_ids=(id))[0]['last_name']):
+                msg = event.text.lower()
+                print()
+                if msg not in cmds:
+                    handler.wrong_cmd(vk_session, id)
+                for name, func in cmds.items():
+                    if msg.lower() == name:
+                        func(vk_session, id)
+                        break
+            else:
+                pass

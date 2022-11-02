@@ -1,8 +1,9 @@
 import gspread
 
-sa = gspread.service_account()
-sh = sa.open("Квартирник")
+class Sheet:
+    def __init__(self):
+        self.sa = gspread.service_account()
+        self.sh = self.sa.open("Квартирник")
 
-wks = sh.worksheet("Лист1")
+        self.wks = self.sh.worksheet("Лист1")
 
-def 

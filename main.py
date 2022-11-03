@@ -20,13 +20,14 @@ cmds = {
 
 for event in longpoll.listen():
     if event.type == VkEventType.MESSAGE_NEW:
+        user_id = event.user_id
+        msg = event.text
+
+        handler.log(user_id, msg, event.from_me)
         if event.to_me:
-            user_id = event.user_id
             last_name = session_api.users.get(user_ids=user_id)[0]['last_name']
             # Checking if user is registered in our system
             handler.is_registered(user_id, last_name)
-
-            msg = event.text
 
             if msg.split()[0].lower() not in cmds:
                 handler.wrong_cmd(vk_session, user_id)

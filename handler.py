@@ -1,9 +1,18 @@
 from mongo import Mongo
 from table import Sheet
+from datetime import datetime
+
+
+def log(sender_id, msg, to_user):
+    if to_user:
+        sender_id = 0  # id = 0 is reserved by bot for logging
+    timestamp = datetime.now()
+
+    Mongo.add_log(sender_id, msg, timestamp)
 
 
 def is_registered(user_id, last_name):
-    res = Mongo.find(last_name)
+    res = Mongo.find_user(last_name)
     if res is None:
         register(user_id, last_name)
         return True
@@ -35,11 +44,11 @@ def help_user(vk_session, user_id, last_name, user_msg):
 
 
 def payment_amount(vk_session, user_id, last_name, user_msg):
-    sum = Sheet.payment_amount(last_name)
-    if sum == -1:
+    pm_sum = Sheet.payment_amount(last_name)
+    if pm_sum == -1:
         msg = "Хто ты?"
     else:
-        msg = f"Вы внесли {sum} рублей из 15"
+        msg = f"Вы внесли {pm_sum} рублей из 15"
     vk_session.method('messages.send', {"user_id": user_id, "message": msg, "random_id": 0})
 
 
@@ -66,6 +75,7 @@ def notification(vk_session, user_id, last_name, user_msg):
             else:
                 msg = f'Когда {boets} докинет еще {15 - pm_sum}, то будет ваще кучеряво'
                 vk_session.method('messages.send', {"user_id": admin_id, "message": msg, "random_id": 0})
+
 
 def deposit(vk_session, user_id, last_name, user_msg):
     admin_id = Sheet.cell_int_value(cell_id='G1')
@@ -126,6 +136,7 @@ def deposit_decline(vk_session, user_id, last_name, user_msg):
 
         msg = 'Слышь, где деньги Лебовски? За такое можно и в глаз!'
         vk_session.method('messages.send', {"user_id": deposit_user_id['_id'], "message": msg, "random_id": 0})
+
 
 def call_cumendant(vk_session, user_id, last_name, user_msg):
     admin_id = Sheet.cell_int_value(cell_id='G1')

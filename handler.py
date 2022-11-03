@@ -6,9 +6,8 @@ from datetime import datetime
 def log(sender_id, msg, to_user):
     if to_user:
         sender_id = 0  # id = 0 is reserved by bot for logging
-    timestamp = datetime.now()
 
-    Mongo.add_log(sender_id, msg, timestamp)
+    Mongo.add_log(sender_id, msg, datetime.now())
 
 
 def is_registered(user_id, last_name):
@@ -21,8 +20,7 @@ def is_registered(user_id, last_name):
 
 
 def register(user_id, last_name):
-    usr = {'_id': user_id, 'last_name': last_name}
-    Mongo.add_new(usr)
+    Mongo.add_new(user_id, last_name)
 
 
 def wrong_cmd(vk_session, user_id):
@@ -87,6 +85,8 @@ def deposit(vk_session, user_id, last_name, user_msg):
 
     else:
         try:
+
+            Mongo.add_deposit(user_id, last_name, int(user_msg[1]), datetime.now())
             msg = f'{last_name} говорит, что он внес {int(user_msg[1])}.' \
                   f'Чтобы подтвердить или отклонить перевод, напиши' \
                   f'"Пришло {last_name}" или "Не пришло {last_name}" соответственно'
@@ -95,13 +95,14 @@ def deposit(vk_session, user_id, last_name, user_msg):
             msg = 'Спасибо! Уже написал коменданту :)'
             vk_session.method('messages.send', {"user_id": user_id, "message": msg, "random_id": 0})
 
-        except Exception:
+        except Exception as e:
+            print(e)
             msg = 'Сумма должна быть в циферках -_-'
             vk_session.method('messages.send', {"user_id": user_id, "message": msg, "random_id": 0})
 
 
 def deposit_approve(vk_session, user_id, last_name, user_msg):
-    deposit_user_id = Mongo.find(user_msg.split()[1])
+    deposit_user_id = Mongo.find_user(user_msg.split()[1])
     admin_id = user_id
 
     if deposit_user_id is None:
@@ -109,6 +110,8 @@ def deposit_approve(vk_session, user_id, last_name, user_msg):
         vk_session.method('messages.send', {"user_id": admin_id, "message": msg, "random_id": 0})
 
     else:
+        Mongo.update_deposit_status(user_id, 1)
+
         msg = 'Шоколадно, пойду обрадую бойца'
         vk_session.method('messages.send', {"user_id": admin_id, "message": msg, "random_id": 0})
 
@@ -124,13 +127,15 @@ def deposit_decline(vk_session, user_id, last_name, user_msg):
         vk_session.method('messages.send', {"user_id": admin_id, "message": msg, "random_id": 0})
         return 0
 
-    deposit_user_id = Mongo.find(user_msg.split()[2].capitalize())
+    deposit_user_id = Mongo.find_user(user_msg.split()[2].capitalize())
 
     if deposit_user_id is None:
         msg = 'Не гони на чела, он ведь даже не в отряде'
         vk_session.method('messages.send', {"user_id": admin_id, "message": msg, "random_id": 0})
 
     else:
+        Mongo.update_deposit_status(user_id, -1)
+
         msg = 'Ща я его быстренько отпетушарю'
         vk_session.method('messages.send', {"user_id": admin_id, "message": msg, "random_id": 0})
 

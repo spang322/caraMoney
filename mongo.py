@@ -35,5 +35,12 @@ class Database:
     def find_user(self, last_name):
         return self.user_collection.find_one({'last_name': last_name})
 
+    def check_deposit_amount(self, user_id):
+        dp_list = self.deposit_collection.find({'user_id': user_id, 'dp_status': 0})
+        dp_list = [i for i in dp_list]
+        if len(dp_list) == 0:
+            return None
+        else:
+            return dp_list[-1]['dp_id']
 
 Mongo = Database()

@@ -8,8 +8,8 @@ class Sheet:
 
         self.wks = self.sh.worksheet("Лист2")
 
-    def payment_amount(self, last_name):
-        last_name_list = [i[0] for i in self.wks.get('A1:A5')]
+    def payment_amount(self, last_name, boets_amount):
+        last_name_list = [i[0] for i in self.wks.get(f'A1:A{boets_amount}')]  # CHANGE TO A2 AFTER SWAP
 
         if last_name in last_name_list:
             num = last_name_list.index(last_name) + 1
@@ -28,13 +28,34 @@ class Sheet:
 
         while True:
             boets = self.wks.acell(f'A{i}').value
-            print(boets)
             if boets is None:
                 break
             boets_list.append(boets)
             i += 1
 
         return boets_list
+
+    def add_money(self, row_num, deposit, deposit_per_month):
+        columns_list = ['B', 'C', 'D', 'F']
+
+        for i in columns_list:
+            current_sum = self.wks.acell(f'{i}{row_num}').value
+            if current_sum is None:
+                current_sum = 0
+            else:
+                current_sum = int(current_sum)
+
+            if current_sum < deposit_per_month:
+                delta = deposit - (deposit_per_month - current_sum)
+
+                if delta > 0:
+                    self.wks.update(f'{i}{row_num}', deposit_per_month)
+                    deposit -= deposit_per_month - current_sum
+                else:
+                    self.wks.update(f'{i}{row_num}', current_sum + deposit)
+                    return 0
+
+        return deposit
 
     def cell_int_value(self, cell_id):
         return int(self.wks.acell(cell_id).value)
